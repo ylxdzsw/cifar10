@@ -23,10 +23,10 @@ class Model(object):
         else:
             self.net.initialize(ctx=self.ctx)
 
+        self.trainer = mx.gluon.Trainer(self.net.collect_params(), 'adam')
         self.net.hybridize()
 
-    def train(self, batches, lr):
-        trainer = mx.gluon.Trainer(self.net.collect_params(), 'sgd', {'learning_rate': lr})
+    def train(self, batches):
         loss = mx.gluon.loss.SoftmaxCrossEntropyLoss()
         total_L = 0
         for x, y in batches:
@@ -36,7 +36,7 @@ class Model(object):
                 L = loss(p, y).mean()
             L.backward()
             total_L += L.asscalar() / len(batches)
-            trainer.step(1)
+            self.trainer.step(1)
         return total_L
 
     def predict(self, x):

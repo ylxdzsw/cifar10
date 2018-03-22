@@ -28,17 +28,13 @@ function read_data(dir="D:/cifar-10/raw/")
     data, X, y
 end
 
-function lr(i)
-    i < 10 ? [.001, .01, .02, .05, .15, .5, .5, .5, .5][i] : 2. ^ -(i ÷ 10)
-end
-
-@main function main(modelname; epoch::Int=50, baselr::f64=.01)
+@main function main(modelname; epoch::Int=20)
     data, X, y = read_data()
     model = pywrap(pyimport(modelname)[:Model]("gpu"))
 
     for i in 1:epoch
         tic()
-        loss = model.train(data, baselr * lr(i))
+        loss = model.train(data)
         acc = count(model.predict(X) .== y) / length(y)
         println("epoch $i, loss: $loss, acc:$acc, time:$(toq())")
         i % 10 == 0 && model.save("D:/cifar-10/result/$modelname.model")
